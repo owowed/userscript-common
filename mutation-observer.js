@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Mutation Observer
-// @description  A library that contains useful functions to ease the use of Mutation Observer.
+// @description  A library that contains utility functions for Mutation Observer.
 // @namespace    owowed.moe
 // @version      1.0.0
 // @author       owowed
