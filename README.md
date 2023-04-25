@@ -28,6 +28,8 @@ Replace "\<filename-here>" with the filename of the library you want to use. For
 // @require  https://github.com/owowed/userscript-common/raw/main/mutation-observer.js
 ```
 
+You can also copy the raw `Source` link under [Available Libraries](#available-libraries).
+
 ### Library Dependency
 
 Some library may depend on other library. You can usually see this on the library's `@require` directive, placed on the userscript header (on top of the file). For those kinds of libraries, you must also require the same dependencies as required by the library itself. For example, the `wait-for-element.js` library requires the `mutation-observer.js` library. In order to include `wait-for-element.js` in your userscript, you must also include `mutation-observer.js`.
