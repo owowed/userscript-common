@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Wait For Element
 // @description  A library that contains functions to wait for element that is not yet loaded or available within DOM.
-// @namespace    owowed.moe
 // @version      1.0.0
+// @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
 // @require      https://github.com/owowed/userscript-common/raw/main/mutation-observer.js
 // @license      LGPL-3.0
