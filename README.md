@@ -1,6 +1,6 @@
 # userscript-common
 
-This repository contains a collection of userscript libraries that provide common tootls, utilities, helpers to help and ease the development of userscripts.
+This repository contains a collection of userscript libraries that provide common tools, utilities, helpers to help and ease the development of userscripts.
 
 ## Available Libraries
 
