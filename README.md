@@ -2,7 +2,7 @@
 Repository for userscript libraries that contains common utilities designed to help and ease the development of userscript.
 
 # How to use
-Add these following lines to your userscript directives:
+Add these following lines to your userscript headers:
 ```javascript
 // ==UserScript==
 // ...
@@ -10,9 +10,19 @@ Add these following lines to your userscript directives:
 // ...
 // ==/UserScript==
 ```
-Replace "\<filename-here>" with the library available in the repository. For example, to use the `wait-for-element.js` library, you must add this line:
+Replace "\<filename-here>" with the library available in the repository. For example, to use the `mutation-observer.js` library, you must add this line:
 ```javascript
+// @require  https://github.com/owowed/userscript-common/raw/main/mutation-observer.js
+```
+## Library dependency
+Some library may depend on other library. You can see this on the library's `@require` directive, usually placed on the userscript header (on top of the file). For that kind of library, you must also require the same dependencies as required by the library. For example, the `wait-for-element.js` library requires `mutation-observer.js` library, in order to include `wait-for-element.js` in your userscript, you must also include `mutation-observer.js`:
+```javascript
+// ==UserScript==
+// ...
+// @require  https://github.com/owowed/userscript-common/raw/main/mutation-observer.js
 // @require  https://github.com/owowed/userscript-common/raw/main/wait-for-element.js
+// ...
+// ==/UserScript==
 ```
 
 # License
