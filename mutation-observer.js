@@ -4,7 +4,7 @@
 // @namespace    owowed.moe
 // @version      1.0.0
 // @author       owowed
-// @license      LGPL-2.1
+// @license      LGPL-3.0
 // ==/UserScript==
 
 function makeMutationObserver({ target, signal, ...options }, callback) {

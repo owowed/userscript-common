@@ -5,7 +5,7 @@
 // @version      1.0.0
 // @author       owowed
 // @require      https://github.com/owowed/userjs-lib/raw/main/mutation-observer.user.js
-// @license      LGPL-2.1
+// @license      LGPL-3.0
 // ==/UserScript==
 
 function waitForElementByParent(parent, selector, options) {
