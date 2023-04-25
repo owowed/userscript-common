@@ -22,7 +22,7 @@ To use any of the libraries in this repository, simply add the following lines t
 // ==/UserScript==
 ```
 
-Replace "\<filename-here>" with the filename of the library you want to use. For example, to include the `mutation-observer.js` library, add the following line to your userscript header:
+Replace `<filename-here>` with the filename of the library you want to use. For example, to include the `mutation-observer.js` library, add the following line to your userscript header:
 
 ```javascript
 // @require  https://github.com/owowed/userscript-common/raw/main/mutation-observer.js
