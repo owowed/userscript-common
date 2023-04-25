@@ -5,7 +5,7 @@ This repository contains a collection of userscript libraries that provide commo
 ## Available Libraries
 
 - **Mutation Observer** ([Source][mos]): A simple wrapper around MutationObserver API to watch DOM changes.
-- **Wait for Element** ([Source][wfes]): Provides utility functions to get and wait for elements that are not yet loaded or available on the page.
+- **Wait for Element** ([Source][wfes]): Provides utility functions to get and wait for elements asyncronously that are not yet loaded or available on the page.
 
 [mos]: https://github.com/owowed/userscript-common/raw/main/mutation-observer.js
 [wfes]: https://github.com/owowed/userscript-common/raw/main/wait-for-element.js

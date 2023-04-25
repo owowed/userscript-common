@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Wait for Element
-// @description  Provides utility functions to get and wait for elements that are not yet loaded or available on the page.
+// @description  Provides utility functions to get and wait for elements asyncronously that are not yet loaded or available on the page.
 // @version      1.0.0
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
