@@ -45,6 +45,10 @@ Some library may depend on other library. You can usually see this on the librar
 
 *(note: the order of `@require` directive does not matter, as userscript-common libraries usually only provide functions that are not executed immediately unless called/used by the developer.)*
 
+## Contributing
+
+If you have any ideas for new userscripts or improvements to existing ones, feel free to fork this repository and submit a pull request.
+
 ## License
 
 This repository and all of its libraries are licensed under [GNU LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html), a free and open-source license. For more information, please see the [license file](https://github.com/owowed/userscript-common/blob/main/LICENSE.txt).
