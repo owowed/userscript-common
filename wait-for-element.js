@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Wait For Element
-// @description  A library that contains functions to wait for element that is not yet loaded or available within DOM.
+// @name         Wait for Element
+// @description  Provides utility functions to get and wait for elements that are not yet loaded or available on the page.
 // @version      1.0.0
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>

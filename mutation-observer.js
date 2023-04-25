@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Mutation Observer
-// @description  A library that contains utility functions for Mutation Observer.
+// @description  A simple wrapper around MutationObserver API to watch DOM changes.
 // @version      1.0.0
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
