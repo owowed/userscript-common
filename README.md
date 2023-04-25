@@ -2,7 +2,7 @@
 Repository for userscript libraries that contains common utilities designed to help and ease the development of userscript.
 
 ## How to use
-Add these following lines to your userscript headers:
+Add these following lines to your userscript header:
 ```javascript
 // ==UserScript==
 // ...
@@ -10,7 +10,7 @@ Add these following lines to your userscript headers:
 // ...
 // ==/UserScript==
 ```
-Replace "\<filename-here>" with the library available in the repository. For example, to use the `mutation-observer.js` library, you must add this line:
+Replace "\<filename-here>" with the library available in the repository. For example, to include the `mutation-observer.js` library, you must add this line into your userscript header:
 ```javascript
 // @require  https://github.com/owowed/userscript-common/raw/main/mutation-observer.js
 ```
