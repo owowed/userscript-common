@@ -43,7 +43,7 @@ Some library may depend on other library. You can usually see this on the librar
 // ==/UserScript==
 ```
 
-*(note: the order of `@require` directive does not matter, as userscript-common libraries only provide functions that are not executed immediately unless called/used by the developer.)*
+*(note: the order of `@require` directive does not matter, as userscript-common libraries usually only provide functions that are not executed immediately unless called/used by the developer.)*
 
 ## License
 
