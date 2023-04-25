@@ -47,4 +47,4 @@ Some library may depend on other library. You can usually see this on the librar
 
 ## License
 
-This repository and all of its libraries are licensed under [GNU LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html), a free and open-source license. For more information, please see the [license file](https://github.com/owowed/userscript-common/blob/3574a4c7a29e8600ddc899cfafd7a4f54674b81d/LICENSE.txt).
+This repository and all of its libraries are licensed under [GNU LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html), a free and open-source license. For more information, please see the [license file](https://github.com/owowed/userscript-common/blob/main/LICENSE.txt).
