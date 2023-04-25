@@ -1,8 +1,11 @@
 # userscript-common
-Repository for userscript libraries that contains common utilities designed to help and ease the development of userscript.
 
-## How to use
-Add these following lines to your userscript header:
+This repository contains a collection of userscript libraries that provide common tootls, utilities, helpers to help and ease the development of userscripts.
+
+## How to Use
+
+To use any of the libraries in this repository, simply add the following lines to your userscript header:
+
 ```javascript
 // ==UserScript==
 // ...
@@ -10,12 +13,17 @@ Add these following lines to your userscript header:
 // ...
 // ==/UserScript==
 ```
-Replace "\<filename-here>" with the library available in the repository. For example, to include the `mutation-observer.js` library, you must add this line into your userscript header:
+
+Replace "\<filename-here>" with the name of the library you want to use. For example, to include the `mutation-observer.js` library, add the following line to your userscript header:
+
 ```javascript
 // @require  https://github.com/owowed/userscript-common/raw/main/mutation-observer.js
 ```
-### Library dependency
-Some library may depend on other library. You can usually see this on the library's `@require` directive, placed on the userscript header (on top of the file). For that kind of library, you must also require the same dependencies as required by the library. For example, the `wait-for-element.js` library requires `mutation-observer.js` library, in order to include `wait-for-element.js` in your userscript, you must also include `mutation-observer.js`:
+
+### Library Dependency
+
+Some library may depend on other library. You can usually see this on the library's `@require` directive, placed on the userscript header (on top of the file). For those kinds of libraries, you must also require the same dependencies as required by the library itself. For example, the `wait-for-element.js` library requires the `mutation-observer.js` library. In order to include `wait-for-element.js` in your userscript, you must also include `mutation-observer.js`.
+
 ```javascript
 // ==UserScript==
 // ...
@@ -24,7 +32,14 @@ Some library may depend on other library. You can usually see this on the librar
 // ...
 // ==/UserScript==
 ```
-*(note: the order of `@require` directive does not matter, as userscript-common libraries only provide functions that are not executed immediately unless called)*
+
+*(note: the order of `@require` directive does not matter, as userscript-common libraries only provide functions that are not executed immediately unless called/used by the developer.)*
+
+## Available Libraries
+
+- **Mutation Observer**: A simple wrapper around MutationObserver API to watch DOM changes.
+- **Wait for Element**: Provides utility functions to get and wait for elements that are not yet loaded or available on the page.
 
 ## License
+
 This project is licensed under [GNU LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html), a free and open-source license. For more information, please see the [license file](https://github.com/owowed/userscript-common/blob/3574a4c7a29e8600ddc899cfafd7a4f54674b81d/LICENSE.txt).
