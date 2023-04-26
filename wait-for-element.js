@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Wait for Element
 // @description  Provides utility functions to get and wait for elements asyncronously that are not yet loaded or available on the page.
-// @version      1.0.0
+// @version      1.0.1
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
 // @require      https://github.com/owowed/userscript-common/raw/main/mutation-observer.js
@@ -20,16 +20,18 @@ function waitForElementOptions(
     { id,
         selector,
         parent = document.documentElement,
-        signal, // abort controller signal
+        abortSignal, // abort controller signal
         multiple = false,
         timeout = 5000,
         noTimeout = false,
-        maxTries = Number.MAX_SAFE_INTEGER } = {}) {
+        maxTries = Number.MAX_SAFE_INTEGER,
+        ensureDomContentLoaded = true,
+        observerOptions = {} } = {}) {
     return new Promise((resolve, reject) => {
         let result, tries = 0;
         
         function checkElement() {
-            signal?.throwIfAborted();
+            abortSignal?.throwIfAborted();
 
             if (id) {
                 result = document.getElementById(id);
@@ -53,31 +55,45 @@ function waitForElementOptions(
             }
         }
 
-        const observer = makeMutationObserver(
-            { target: parent,
-                childList: true,
-                subtree: true,
-                signal },
-            checkElement);
-
-        checkElement();
-
-        let timeoutId = null;
-
-        if (!noTimeout) {
-            timeoutId = setTimeout(() => {
-                signal?.throwIfAborted();
+        function startWaitForElement() {
+            let observer = null;
+    
+            checkElement();
+            
+            observer = makeMutationObserver(
+                { target: parent,
+                    childList: true,
+                    subtree: true,
+                    abortSignal,
+                    ...observerOptions },
+                checkElement);
+    
+            let timeoutId = null;
+    
+            if (!noTimeout) {
+                timeoutId = setTimeout(() => {
+                    abortSignal?.throwIfAborted();
+                    observer.disconnect();
+                    reject(new Error(`Timeout waiting for element "${selector}"`));
+                }, timeout);
+            }
+    
+            abortSignal?.addEventListener("abort", () => {
+                clearTimeout(timeoutId);
                 observer.disconnect();
-                reject(new Error(`Timeout waiting for element "${selector}"`));
-            }, timeout);
+                reject(new DOMException(abortSignal.reason, "AbortError"));
+            });
+    
+            checkElement();
         }
 
-        signal?.addEventListener("abort", () => {
-            clearTimeout(timeoutId);
-            observer.disconnect();
-            reject(new DOMException(signal.reason, "AbortError"));
-        });
-
-        checkElement();
+        if (ensureDomContentLoaded && document.readyState == "loading") {
+            document.addEventListener("DOMContentLoaded", () => {
+                startWaitForElement();
+            });
+        }
+        else {
+            startWaitForElement();
+        }
     });
 }
