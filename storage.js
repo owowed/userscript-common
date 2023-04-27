@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Storage
-// @description  Provides a storage class to manage userscript's storage.
+// @description  Provides an API and wrapper around `GM_getValue` and `GM_setValue` to manage userscript's storage.
 // @version      1.0.0
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
