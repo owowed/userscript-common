@@ -47,14 +47,14 @@ function waitForElementOptions(
             }
 
             if (multiple ? result?.length > 0 : result) {
-                observer.disconnect();
+                observer?.disconnect();
                 return resolve(result);
             }
 
             tries++;
 
             if (tries >= maxTries) {
-                observer.disconnect();
+                observer?.disconnect();
                 reject(new WaitForElementMaximumTriesError(`maximum number of tries (${maxTries}) reached waiting for element "${selector}"`));
             }
         }
