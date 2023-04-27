@@ -34,7 +34,7 @@ function waitForElementOptions(
     return new Promise((resolve, reject) => {
         let result, tries = 0;
         
-        function checkElement() {
+        function checkElement(observer) {
             abortSignal?.throwIfAborted();
 
             if (id) {
@@ -60,17 +60,15 @@ function waitForElementOptions(
         }
 
         function startWaitForElement() {
-            let observer = null;
-    
             checkElement();
             
-            observer = makeMutationObserver(
+            let observer = makeMutationObserver(
                 { target: parent,
                     childList: true,
                     subtree: true,
                     abortSignal,
                     ...observerOptions },
-                checkElement);
+                () => checkElement(observer));
     
             let timeoutId = null;
     
