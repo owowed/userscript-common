@@ -1,12 +1,16 @@
 // ==UserScript==
 // @name         Wait for Element
 // @description  Provides utility functions to get and wait for elements asyncronously that are not yet loaded or available on the page.
-// @version      1.0.1
+// @version      1.0.2
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
+// @require      https://github.com/owowed/userscript-common/raw/main/common.js
 // @require      https://github.com/owowed/userscript-common/raw/main/mutation-observer.js
 // @license      LGPL-3.0
 // ==/UserScript==
+
+class WaitForElementTimeoutError extends OxiError {}
+class WaitForElementMaximumTriesError extends OxiError {}
 
 function waitForElementByParent(parent, selector, options) {
     return waitForElementOptions({ selector, parent, ...options });
@@ -51,7 +55,7 @@ function waitForElementOptions(
 
             if (tries >= maxTries) {
                 observer.disconnect();
-                reject(new Error(`Maximum number of tries (${maxTries}) reached waiting for element "${selector}"`));
+                reject(new WaitForElementMaximumTriesError(`maximum number of tries (${maxTries}) reached waiting for element "${selector}"`));
             }
         }
 
@@ -74,7 +78,7 @@ function waitForElementOptions(
                 timeoutId = setTimeout(() => {
                     abortSignal?.throwIfAborted();
                     observer.disconnect();
-                    reject(new Error(`Timeout waiting for element "${selector}"`));
+                    reject(new WaitForElementTimeoutError(`timeout waiting for element "${selector}"`));
                 }, timeout);
             }
     
