@@ -36,7 +36,9 @@ You can also copy the raw `Source` link under [Available Libraries](#available-l
 
 ### Library Dependency
 
-Some library may depend on other library. You can usually see this on the library's `@require` directive, placed on the userscript header (on top of the file). For those kinds of libraries, you must also require the same dependencies as required by the library itself. For example, the `wait-for-element.js` library requires the `common.js` and `mutation-observer.js` library. In order to include `wait-for-element.js` in your userscript, you must also include `common.js`and `mutation-observer.js`.
+Some library may depend on other library. You can usually see this on the library's `@require` directive, placed on the userscript header (on top of the file). For those kinds of libraries, you must also require the same dependencies as required by the library itself.
+
+For example, the `wait-for-element.js` library requires the `common.js` and `mutation-observer.js` library. In order to include `wait-for-element.js` in your userscript, you must also include `common.js`and `mutation-observer.js`.
 
 ```javascript
 // ==UserScript==
