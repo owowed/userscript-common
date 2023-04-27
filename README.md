@@ -11,6 +11,7 @@ This repository contains a collection of userscript libraries that provide commo
 
 [mos]: https://github.com/owowed/userscript-common/raw/main/mutation-observer.js
 [wfes]: https://github.com/owowed/userscript-common/raw/main/wait-for-element.js
+[storage]: https://github.com/owowed/userscript-common/raw/main/storage.js
 [common]: https://github.com/owowed/userscript-common/raw/main/common.js
 
 ## How to Use
