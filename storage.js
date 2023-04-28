@@ -4,7 +4,7 @@
 // @version      1.0.0
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
-// @include      *://*/*
+// @match        *://*/*
 // @require      https://github.com/owowed/userscript-common/raw/main/common.js
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -12,7 +12,12 @@
 // @license      LGPL-3.0
 // ==/UserScript==
 
-class OxiStorageError extends OxiError {}
+class OxiStorageError extends OxiError {
+    constructor (message, { data, cause, ...rest }) {
+        super(message, { cause, ...rest });
+        this.data = data;
+    }
+}
 
 class OxiStorageSerializationError extends OxiStorageError {}
 class OxiStorageDeserializationError extends OxiStorageError {}
@@ -36,11 +41,12 @@ class OxiStorage {
 
         if (this.valueGetter("oxi_storage_metadata") == undefined) {
             this.valueSetter("oxi_storage_metadata", {
-                version: [1, 0, 0]
+                version: [1, 0, 0],
+                creationDate: Date.now()
             });
         }
-        if (this.valueGetter("@") == undefined) {
-            this.valueSetter("@", {
+        if (this.valueGetter(".") == undefined) {
+            this.valueSetter(".", {
                 root: true,
                 type: "object",
                 keys: [],
@@ -69,47 +75,67 @@ class OxiStorage {
     }
 
     parsePath(path) {
-        path = this.#resolvePath(path);
+        path = this.resolvePath(path);
         return path.split(".");
     }
 
-    #resolvePath(path) {
-        if (path[0] != "@") {
-            return `@.${path}`;
+    resolvePath(path) {
+        if (Array.isArray(path)) {
+            path = path.join(".");
         }
+        if (path.includes("\\.")) {
+            throw new OxiStorage("escaping path character is not supported at the moment");
+        }
+        if (path[0] != ".") {
+            return `.${path}`;
+        }
+        path = path.replace(/^\.+(.+)?/, ".$1");
         return path;
     }
 
-    #updateAssignationData(mode, { parent, valueKey, subroot, parentKey } = {}) {
-        if (mode != "update" && mode != "delete") throw new TypeError("invalid string enum");
+    #modifyParentObjectData(mode, { parent, valueKey, subroot, parentKey } = {}) {
+        if (mode != "update" && mode != "delete") {
+            throw new TypeError(`modify property descriptor: invalid mode "${mode}"`);
+        }
         if (OxiStorage.isDataObject(parent)) {
             let assignationData;
-            if (parent.type == "object") {
-                assignationData = {
-                    ...parent,
-                    keys: mode == "update"
-                        ? Array.from(new Set(parent.keys.concat(valueKey)))
-                        : parent.keys.filter(i => i != valueKey),
-                };
+
+            switch (parent.type) {
+                case "object": {
+                    assignationData = {
+                        ...parent,
+                        keys: mode == "update"
+                            ? Array.from(new Set(parent.keys.concat(valueKey)))
+                            : parent.keys.filter(i => i != valueKey),
+                    };
+                } break;
+                case "array": {
+                    assignationData = {
+                        ...parent,
+                        length: mode == "update"
+                            ? parent.length + 1
+                            : parent.length - 1,
+                    };
+                } break;
             }
-            else if (parent.type == "array") {
-                assignationData = {
-                    ...parent,
-                    length: mode == "update"
-                        ? parent.length + 1
-                        : parent.length - 1,
-                };
-            }
-            this.valueSetter(subroot ? `${subroot}.${parentKey}` : parentKey, assignationData);
+            
+            this.valueSetter(this.resolvePath([subroot, parentKey]), assignationData);
         }
-        else throw new Error("is data object");
+        else throw new OxiStorageSerializationError("value is not data object", {
+            data: {
+                subroot,
+                parent,
+                parentKey,
+                valueKey,
+            }
+        });
     }
 
     #getAssignationData(path) {
         const parsedPath = this.parsePath(path);
         const [parentKey, valueKey] = parsedPath.slice(-2);
         const subroot = parsedPath.slice(0, -2).join(".");
-        const parent = this.valueGetter(subroot ? `${subroot}.${parentKey}` : parentKey);
+        const parent = this.valueGetter(this.resolvePath([subroot, parentKey]));
         const value = this.valueGetter(`${path}`);
 
         if (!OxiStorage.isDataObject(parent)) {
@@ -119,12 +145,19 @@ class OxiStorage {
     }
 
     getValue(path) {
-        path = this.#resolvePath(path);
+        path = this.resolvePath(path);
 
-        const { parent, value } = this.#getAssignationData(path);
+        const { parent, parentKey, value } = this.#getAssignationData(path);
         
         if (parent == undefined) {
-            throw new Error("expect parent");
+            throw new OxiStorageDeserializationError("parent is undefined", {
+                data: {
+                    parent,
+                    parentKey,
+                    path,
+                    value
+                }
+            });
         }
 
         if (OxiStorage.isDataObject(value)) {
@@ -136,16 +169,29 @@ class OxiStorage {
     }
 
     setValue(path, value) {
-        path = this.#resolvePath(path);
+        path = this.resolvePath(path);
+        this.deleteValue(path);
 
         const { parent, parentKey, valueKey, subroot } = this.#getAssignationData(path);
 
         if (parent == undefined) {
-            throw new Error("expect parent");
+            throw new OxiStorageDeserializationError("parent is undefined", {
+                data: {
+                    parent,
+                    parentKey,
+                    path,
+                    value
+                }
+            });
         }
 
         if (OxiStorage.isClassObject(value)) {
-            throw new Error("unsupported class object");
+            throw new OxiStorageSerializationError("unsupported class object", {
+                data: {
+                    type: typeof value,
+                    value
+                }
+            });
         }
         if (OxiStorage.isDictionaryObject(value)) {
             this.valueSetter(path, {
@@ -153,8 +199,8 @@ class OxiStorage {
                 keys: Object.keys(value),
             });
 
-            for (const [k, v] of Object.entries(value)) {
-                this.setValue(`${path}.${k}`, v);
+            for (const [okey, ovalue] of Object.entries(value)) {
+                this.setValue([path, okey], ovalue);
             }
         }
         else if (Array.isArray(value)) {
@@ -164,7 +210,7 @@ class OxiStorage {
             });
 
             for (let index = 0; index < value.length; index++) {
-                this.setValue(`${path}.${index}`, value[index]);
+                this.setValue([path, index], value[index]);
             }
         }
         else {
@@ -176,16 +222,23 @@ class OxiStorage {
             }
         }
 
-        this.#updateAssignationData("update", { parent, valueKey, subroot, parentKey });
+        this.#modifyParentObjectData("update", { parent, valueKey, subroot, parentKey });
     }
 
     deleteValue(path) {
-        path = this.#resolvePath(path);
+        path = this.resolvePath(path);
 
         const { parent, parentKey, valueKey, value, subroot } = this.#getAssignationData(path);
         
         if (parent == undefined) {
-            throw new Error("expect parent");
+            throw new OxiStorageDeserializationError("parent is undefined", {
+                data: {
+                    parent,
+                    parentKey,
+                    path,
+                    value
+                }
+            });
         }
 
         if (OxiStorage.isDataObject(value)) {
@@ -195,7 +248,7 @@ class OxiStorage {
         }
 
         this.valueDeleter(path);
-        this.#updateAssignationData("delete", { parent, valueKey, subroot, parentKey });
+        this.#modifyParentObjectData("delete", { parent, valueKey, subroot, parentKey });
     }
 
     createProxy(path, { type }) {
@@ -207,27 +260,41 @@ class OxiStorage {
                     return target;
                 }
                 if (!target.isActive) {
-                    return;
+                    return undefined;
                 }
                 if (prop == Symbol.toPrimitive) {
                     return { type };
                 }
-                if (typeof prop == "string" || typeof prop == "number") {
-                    return this.getValue(`${path}.${prop}`);
+                if (!(typeof prop == "string" || typeof prop == "number")) {
+                    throw new OxiStorageDeserializationError("unexpected non-primitive property", {
+                        data: {
+                            type: typeof prop,
+                            prop,
+                        }
+                    });
                 }
-                else {
-                    console.error("unexpected property", prop);
-                    return undefined;
-                }
+                return this.getValue([path, prop]);
             },
             set: (target, prop, value, receiver) => {
                 if (prop == this.#proxyMetadata) {
-                    throw new Error("unexpected assignment");
+                    throw new OxiStorageSerializationError("unexpected assignment: proxy metadata", {
+                        data: {
+                            prop,
+                        }
+                    });
                 }
                 if (!target.isActive) {
                     return false;
                 }
-                this.setValue(`${path}.${prop}`, value);
+                if (!OxiStorage.isPrimitive(value)) {
+                    throw new OxiStorageSerializationError("type of value is not primitive type", {
+                        data: {
+                            type: typeof value,
+                            value
+                        }
+                    });
+                }
+                this.setValue([path, prop], value);
                 return true;
             }
         });
@@ -242,3 +309,14 @@ class OxiStorage {
         this.#activeProxies = this.#activeProxies.filter(p => p != proxy);
     }
 }
+
+const storage = new OxiStorage();
+
+try {
+    storage.setValue("test.test", 78);
+} catch(e) { console.error(e) }
+
+storage.setValue("test2", {});
+storage.setValue("test2.test", 2);
+
+console.log(storage.getValue("test2.test"))
