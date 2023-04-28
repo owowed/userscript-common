@@ -84,7 +84,9 @@ class OxiStorage {
             path = path.join(".");
         }
         if (path.includes("\\.")) {
-            throw new OxiStorage("escaping path character is not supported at the moment");
+            throw new OxiStorage("escaping path character is not supported at the moment", {
+                data: { path }
+            });
         }
         if (path[0] != ".") {
             return `.${path}`;
@@ -95,40 +97,41 @@ class OxiStorage {
 
     #modifyParentObjectData(mode, { parent, valueKey, subroot, parentKey } = {}) {
         if (mode != "update" && mode != "delete") {
-            throw new TypeError(`modify property descriptor: invalid mode "${mode}"`);
+            throw new TypeError(`modify parent object data: invalid mode "${mode}"`);
         }
-        if (OxiStorage.isDataObject(parent)) {
-            let assignationData;
+        if (!OxiStorage.isDataObject(parent)) {
+            throw new OxiStorageSerializationError("value is not data object", {
+                data: {
+                    subroot,
+                    parent,
+                    parentKey,
+                    valueKey,
+                }
+            });
+        }
+        
+        let assignationData;
 
-            switch (parent.type) {
-                case "object": {
-                    assignationData = {
-                        ...parent,
-                        keys: mode == "update"
-                            ? Array.from(new Set(parent.keys.concat(valueKey)))
-                            : parent.keys.filter(i => i != valueKey),
-                    };
-                } break;
-                case "array": {
-                    assignationData = {
-                        ...parent,
-                        length: mode == "update"
-                            ? parent.length + 1
-                            : parent.length - 1,
-                    };
-                } break;
-            }
-            
-            this.valueSetter(this.resolvePath([subroot, parentKey]), assignationData);
+        switch (parent.type) {
+            case "object": {
+                assignationData = {
+                    ...parent,
+                    keys: mode == "update"
+                        ? Array.from(new Set(parent.keys.concat(valueKey)))
+                        : parent.keys.filter(i => i != valueKey),
+                };
+            } break;
+            case "array": {
+                assignationData = {
+                    ...parent,
+                    length: mode == "update"
+                        ? parent.length + 1
+                        : parent.length - 1,
+                };
+            } break;
         }
-        else throw new OxiStorageSerializationError("value is not data object", {
-            data: {
-                subroot,
-                parent,
-                parentKey,
-                valueKey,
-            }
-        });
+        
+        this.valueSetter(this.resolvePath([subroot, parentKey]), assignationData);
     }
 
     #getAssignationData(path) {
@@ -170,7 +173,6 @@ class OxiStorage {
 
     setValue(path, value) {
         path = this.resolvePath(path);
-        this.deleteValue(path);
 
         const { parent, parentKey, valueKey, subroot } = this.#getAssignationData(path);
 
@@ -184,7 +186,7 @@ class OxiStorage {
                 }
             });
         }
-
+        
         if (OxiStorage.isClassObject(value)) {
             throw new OxiStorageSerializationError("unsupported class object", {
                 data: {
@@ -193,6 +195,9 @@ class OxiStorage {
                 }
             });
         }
+
+        this.deleteValue(path);
+
         if (OxiStorage.isDictionaryObject(value)) {
             this.valueSetter(path, {
                 type: "object",
