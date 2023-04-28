@@ -5,7 +5,7 @@ This repository contains a collection of userscript libraries that provide commo
 ## Available Libraries
 
 - **Wait for Element** ([Source][wfes]): Provides utility functions to get and wait for elements asyncronously that are not yet loaded or available on the page.
-- **OxiStorage** ([Source][storage]): Provides an API and wrapper around `GM_getValue` and `GM_setValue` to manage userscript's storage.
+- **OxiStorage** ([Source][storage]): Provides an API and wrapper around `GM_getValue` and `GM_setValue` to manage userscript storage.
 - **Mutation Observer** ([Source][mos]): A simple wrapper around MutationObserver API to watch DOM changes.
 - **Common** ([Source][common]): Provides common utilities for userscript-common libraries. *It is recommended to automatically include this in your userscript alongside other libraries, as most libraries usually depend on it.*
 
