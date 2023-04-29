@@ -22,6 +22,15 @@ class OxiStorageError extends OxiError {
 class OxiStorageSerializationError extends OxiStorageError {}
 class OxiStorageDeserializationError extends OxiStorageError {}
 
+/**
+ * @typedef {string | number | null | undefined} UserscriptStorageValue
+ */
+
+/**
+ * @typedef AssignationData
+ */
+
+
 class OxiStorage {
     valueGetter = GM_getValue;
     valueSetter = GM_setValue;
@@ -54,31 +63,66 @@ class OxiStorage {
         }
     }
 
+    /**
+     * Check if `obj` is primitive.
+     * @param {any} obj 
+     * @returns {boolean}
+     */
     static isPrimitive(obj) {
         return !OxiStorage.isObject(obj) || obj === null;
     }
 
+    /**
+     * Check if `obj` is an object, whether or not is a class object or dictionary object.
+     * @param {any} obj 
+     * @returns {boolean}
+     */
     static isObject(obj) {
         return typeof obj === "object" && !Array.isArray(obj) && obj !== null;
     }
 
+    /**
+     * Check if `obj` is a dictionary object, an object that is usually created in object literal expression.
+     * @param {any} obj 
+     * @returns {boolean}
+     */
     static isDictionaryObject(obj) {
         return OxiStorage.isObject(obj) && obj.constructor == Object;
     }
 
+    /**
+     * Check if `obj` is a class object, an object that is usually created/constructed by class.
+     * @param {any} obj 
+     * @returns {boolean}
+     */
     static isClassObject(obj) {
         return OxiStorage.isObject(obj) && obj.constructor != Object;
     }
 
+    /**
+     * Check if `obj` is `OxiStorage` data object, an object that is stored in userscript storage, usually indicating that the property is an array or an object.
+     * @param {any} obj 
+     * @returns {boolean}
+     */
     static isDataObject(obj) {
         return obj?.type && true;
     }
 
+    /**
+     * Parse a string path into array of string.
+     * @param {string} path 
+     * @returns {string[]}
+     */
     parsePath(path) {
         path = this.resolvePath(path);
         return path.split(".");
     }
 
+    /**
+     * Resolve string path to correct string path.
+     * @param {string | string[]} path 
+     * @returns {boolean}
+     */
     resolvePath(path) {
         if (Array.isArray(path)) {
             path = path.join(".");
@@ -95,6 +139,10 @@ class OxiStorage {
         return path;
     }
 
+    /**
+     * @param {"update" | "delete"} mode 
+     * @param {AssignationData} param1 
+     */
     #modifyParentObjectData(mode, { parent, valueKey, subroot, parentKey } = {}) {
         if (mode != "update" && mode != "delete") {
             throw new TypeError(`modify parent object data: invalid mode "${mode}"`);
@@ -134,6 +182,10 @@ class OxiStorage {
         this.valueSetter(this.resolvePath([subroot, parentKey]), assignationData);
     }
 
+    /**
+     * @param {string} path 
+     * @returns {AssignationData}
+     */
     #getAssignationData(path) {
         const parsedPath = this.parsePath(path);
         const [parentKey, valueKey] = parsedPath.slice(-2);
@@ -147,6 +199,12 @@ class OxiStorage {
         return { parent, parentKey, value, valueKey, subroot };
     }
 
+    /**
+     * Get value from the userscript storage.
+     * @template {UserscriptStorageValue} T
+     * @param {string | string[]} path - any valid path can be resolved by `OxiStorage#resolvePath()`.
+     * @returns {T} - usually JSON primitives, but may also return `undefined` if the property does not exist.
+     */
     getValue(path) {
         path = this.resolvePath(path);
 
@@ -171,6 +229,12 @@ class OxiStorage {
         }
     }
 
+    /**
+     * Set value in the userscript storage.
+     * @param {string | string[]} path - any valid path can be resolved by `OxiStorage#resolvePath()`.
+     * @param {UserscriptStorageValue} value - JSON primitives.
+     * @returns {void}
+     */
     setValue(path, value) {
         path = this.resolvePath(path);
 
@@ -230,6 +294,11 @@ class OxiStorage {
         this.#modifyParentObjectData("update", { parent, valueKey, subroot, parentKey });
     }
 
+    /**
+     * Delete value from the userscript storage.
+     * @param {string | string[]} path - any valid path can be resolved by `OxiStorage#resolvePath()`.
+     * @returns {void}
+     */
     deleteValue(path) {
         path = this.resolvePath(path);
 
@@ -256,6 +325,13 @@ class OxiStorage {
         this.#modifyParentObjectData("delete", { parent, valueKey, subroot, parentKey });
     }
 
+    /**
+     * Create a proxy from path.
+     * @template {object} T
+     * @param {string | string[]} path - any valid path can be resolved by `OxiStorage#resolvePath()`.
+     * @param {{ type: "array" | "object" }} objectDescriptor 
+     * @returns {ProxyHandler<T>}
+     */
     createProxy(path, { type }) {
         const proxy = new Proxy({
             isActive: true
@@ -309,6 +385,11 @@ class OxiStorage {
         return proxy;
     }
     
+    /**
+     * Disable and remove created proxy from this class.
+     * @param {ProxyHandler<object>} proxy
+     * @returns {void}
+     */
     removeProxy(proxy) {
         proxy[this.#proxyMetadata].isActive = false;
         this.#activeProxies = this.#activeProxies.filter(p => p != proxy);

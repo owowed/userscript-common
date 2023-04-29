@@ -7,6 +7,9 @@
 // @license      LGPL-3.0
 // ==/UserScript==
 
+/**
+ * Error class that other error classes in userscript-common usually extends to.
+ */
 class OxiError extends Error {
     name = this.constructor.name;
 }
