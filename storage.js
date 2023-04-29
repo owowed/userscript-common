@@ -23,7 +23,7 @@ class OxiStorageSerializationError extends OxiStorageError {}
 class OxiStorageDeserializationError extends OxiStorageError {}
 
 /**
- * @typedef {string | number | null | undefined} UserscriptStorageValue
+ * @typedef {string | number | null | undefined | Record<string, UserscriptStorageValue>} UserscriptStorageValue
  */
 
 /**
@@ -326,11 +326,11 @@ class OxiStorage {
     }
 
     /**
-     * Create a proxy from path.
-     * @template {object} T
+     * Create a proxy from path. You can access userscript storage using object notation by creating a proxy.
+     * @template {Record<string, UserscriptStorageValue>} T
      * @param {string | string[]} path - any valid path can be resolved by `OxiStorage#resolvePath()`.
      * @param {{ type: "array" | "object" }} objectDescriptor 
-     * @returns {ProxyHandler<T>}
+     * @returns {T}
      */
     createProxy(path, { type }) {
         const proxy = new Proxy({
@@ -387,7 +387,7 @@ class OxiStorage {
     
     /**
      * Disable and remove created proxy from this class.
-     * @param {ProxyHandler<object>} proxy
+     * @param {Record<string, UserscriptStorageValue>} proxy
      * @returns {void}
      */
     removeProxy(proxy) {
