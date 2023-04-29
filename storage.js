@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OxiStorage
-// @description  Provides an API and wrapper around `GM_getValue` and `GM_setValue` to manage userscript storage.
+// @description  Provides an API around `GM_getValue`, `GM_setValue`, and `GM_deleteValue` to manage userscript storage.
 // @version      1.0.1
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
@@ -27,9 +27,8 @@ class OxiStorageDeserializationError extends OxiStorageError {}
  */
 
 /**
- * @typedef AssignationData
+ * @typedef {any} AssignationData
  */
-
 
 class OxiStorage {
     valueGetter = GM_getValue;
