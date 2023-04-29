@@ -30,20 +30,46 @@ function waitForElementOptions(
         noTimeout = false,
         maxTries = Number.MAX_SAFE_INTEGER,
         ensureDomContentLoaded = true,
-        observerOptions = {} } = {}) {
+        observerOptions = {},
+        filter,
+        transform } = {}) {
     return new Promise((resolve, reject) => {
         let result, tries = 0;
         
-        function checkElement(observer) {
+        function tryQueryElement(observer) {
             abortSignal?.throwIfAborted();
 
-            if (id) {
-                result = document.getElementById(id);
+            if (multiple && id == undefined) {
+                result = Array.from(parent.querySelectorAll(selector));
+                if (filter != undefined) {
+                    let filteredResult = [];
+                    for (let elem of result) {
+                        if (filter(elem)) {
+                            if (transform) elem = transform(elem);
+                            filteredResult.push(elem);
+                        }
+                    }
+                    result = filteredResult;
+                }
+                else if (transform != undefined) {
+                    let transformedResult = [];
+                    for (const elem of result) {
+                        transformedResult.push(transform(elem));
+                    }
+                    result = transformedResult;
+                }
             }
             else {
-                result = multiple
-                    ? parent.querySelectorAll(selector)
-                    : parent.querySelector(selector);
+                if (id) {
+                    result = document.getElementById(id);
+                }
+                else {
+                    result = parent.querySelector(selector);
+                }
+                if (transform) result = transform(result);
+                if (filter != undefined && !filter(result)) {
+                    return;
+                }
             }
 
             if (multiple ? result?.length > 0 : result) {
@@ -60,7 +86,7 @@ function waitForElementOptions(
         }
 
         function startWaitForElement() {
-            checkElement();
+            tryQueryElement();
             
             let observer = makeMutationObserver(
                 { target: parent,
@@ -68,7 +94,7 @@ function waitForElementOptions(
                     subtree: true,
                     abortSignal,
                     ...observerOptions },
-                () => checkElement(observer));
+                () => tryQueryElement(observer));
     
             let timeoutId = null;
     
@@ -86,7 +112,7 @@ function waitForElementOptions(
                 reject(new DOMException(abortSignal.reason, "AbortError"));
             });
     
-            checkElement();
+            tryQueryElement();
         }
 
         if (ensureDomContentLoaded && document.readyState == "loading") {
