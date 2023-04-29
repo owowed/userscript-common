@@ -22,7 +22,7 @@
  * Create a new `MutationObserver` with options and callback.
  * @param {MakeMutationObserverOptions} options 
  * @param {MakeMutationObserverCallback} callback 
- * @returns {void}
+ * @returns {MutationObserver}
  */
 function makeMutationObserver({ target, abortSignal, ...options }, callback) {
     const observer = new MutationObserver(records => {
