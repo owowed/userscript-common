@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OxiStorage
 // @description  Provides an API and wrapper around `GM_getValue` and `GM_setValue` to manage userscript storage.
-// @version      1.0.0
+// @version      1.0.1
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
 // @match        *://*/*
