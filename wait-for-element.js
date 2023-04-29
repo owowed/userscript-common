@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Wait for Element
 // @description  Provides utility functions to get and wait for elements asyncronously that are not yet loaded or available on the page.
-// @version      1.0.2
+// @version      1.0.3
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
 // @require      https://github.com/owowed/userscript-common/raw/main/common.js
@@ -27,7 +27,7 @@ function waitForElementOptions(
         abortSignal, // abort controller signal
         multiple = false,
         timeout = 5000,
-        noTimeout = false,
+        enableTimeout = true,
         maxTries = Number.MAX_SAFE_INTEGER,
         ensureDomContentLoaded = true,
         observerOptions = {},
@@ -98,7 +98,7 @@ function waitForElementOptions(
     
             let timeoutId = null;
     
-            if (!noTimeout) {
+            if (enableTimeout) {
                 timeoutId = setTimeout(() => {
                     abortSignal?.throwIfAborted();
                     observer.disconnect();
