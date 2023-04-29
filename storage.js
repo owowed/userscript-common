@@ -23,9 +23,9 @@ class OxiStorageSerializationError extends OxiStorageError {}
 class OxiStorageDeserializationError extends OxiStorageError {}
 
 class OxiStorage {
-    valueGetter = GM_getValue ?? GM?.getValue;
-    valueSetter = GM_setValue ?? GM?.setValue;
-    valueDeleter = GM_deleteValue ?? GM?.deleteValue ?? ((propPath) => {
+    valueGetter = GM_getValue;
+    valueSetter = GM_setValue;
+    valueDeleter = GM_deleteValue ?? ((propPath) => {
         this.valueSetter(propPath, undefined);
     });
     #activeProxies = [];
@@ -314,14 +314,3 @@ class OxiStorage {
         this.#activeProxies = this.#activeProxies.filter(p => p != proxy);
     }
 }
-
-const storage = new OxiStorage();
-
-try {
-    storage.setValue("test.test", 78);
-} catch(e) { console.error(e) }
-
-storage.setValue("test2", {});
-storage.setValue("test2.test", 2);
-
-console.log(storage.getValue("test2.test"))
