@@ -10,7 +10,8 @@
 /**
  * @typedef {MutationObserverInit & {
  *  target: HTMLElement,
- *  abortSignal: AbortSignal 
+ *  abortSignal?: AbortSignal,
+ *  once?: boolean
  * }} MakeMutationObserverOptions
  */
 

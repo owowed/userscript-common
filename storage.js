@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OxiStorage
 // @description  Provides an API around `GM_getValue`, `GM_setValue`, and `GM_deleteValue` to manage userscript storage.
-// @version      1.0.1
+// @version      1.0.2
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
 // @match        *://*/*
@@ -108,21 +108,21 @@ class OxiStorage {
     }
 
     /**
-     * Parse a string path into array of string.
+     * Split string path into array of string.
      * @param {string} path 
      * @returns {string[]}
      */
-    parsePath(path) {
-        path = this.resolvePath(path);
+    static splitPath(path) {
+        path = OxiStorage.resolvePath(path);
         return path.split(".");
     }
 
     /**
      * Resolve string path to correct string path.
      * @param {string | string[]} path 
-     * @returns {boolean}
+     * @returns {string}
      */
-    resolvePath(path) {
+    static resolvePath(path) {
         if (Array.isArray(path)) {
             path = path.join(".");
         }
@@ -178,7 +178,7 @@ class OxiStorage {
             } break;
         }
         
-        this.valueSetter(this.resolvePath([subroot, parentKey]), assignationData);
+        this.valueSetter(OxiStorage.resolvePath([subroot, parentKey]), assignationData);
     }
 
     /**
@@ -186,10 +186,10 @@ class OxiStorage {
      * @returns {AssignationData}
      */
     #getAssignationData(path) {
-        const parsedPath = this.parsePath(path);
+        const parsedPath = OxiStorage.splitPath(path);
         const [parentKey, valueKey] = parsedPath.slice(-2);
         const subroot = parsedPath.slice(0, -2).join(".");
-        const parent = this.valueGetter(this.resolvePath([subroot, parentKey]));
+        const parent = this.valueGetter(OxiStorage.resolvePath([subroot, parentKey]));
         const value = this.valueGetter(`${path}`);
 
         if (!OxiStorage.isDataObject(parent)) {
@@ -205,7 +205,7 @@ class OxiStorage {
      * @returns {T} - usually JSON primitives, but may also return `undefined` if the property does not exist.
      */
     getValue(path) {
-        path = this.resolvePath(path);
+        path = OxiStorage.resolvePath(path);
 
         const { parent, parentKey, value } = this.#getAssignationData(path);
         
@@ -235,7 +235,7 @@ class OxiStorage {
      * @returns {void}
      */
     setValue(path, value) {
-        path = this.resolvePath(path);
+        path = OxiStorage.resolvePath(path);
 
         const { parent, parentKey, valueKey, subroot } = this.#getAssignationData(path);
 
@@ -299,7 +299,7 @@ class OxiStorage {
      * @returns {void}
      */
     deleteValue(path) {
-        path = this.resolvePath(path);
+        path = OxiStorage.resolvePath(path);
 
         const { parent, parentKey, valueKey, value, subroot } = this.#getAssignationData(path);
         
