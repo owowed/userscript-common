@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Mutation Observer
 // @description  A simple wrapper around MutationObserver API to watch DOM changes.
-// @version      1.0.1
+// @version      1.0.2
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
 // @license      LGPL-3.0
@@ -24,9 +24,10 @@
  * @param {MakeMutationObserverCallback} callback 
  * @returns {MutationObserver}
  */
-function makeMutationObserver({ target, abortSignal, ...options }, callback) {
+function makeMutationObserver({ target, abortSignal, once, ...options }, callback) {
     const observer = new MutationObserver(records => {
         abortSignal?.throwIfAborted();
+        if (once) observer.disconnect();
         callback({ records, observer });
     });
 
