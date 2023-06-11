@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Wait for Element
 // @description  Provides utility functions to get and wait for elements asyncronously that are not yet loaded or available on the page.
-// @version      1.0.3
+// @version      1.0.4
 // @namespace    owowed.moe
 // @author       owowed <island@owowed.moe>
 // @require      https://github.com/owowed/userscript-common/raw/main/common.js
@@ -71,14 +71,27 @@ function waitForElementOptions(
         ensureDomContentLoaded = true,
         observerOptions = {},
         filter,
-        transform } = {}) {
+        transform,
+        throwError } = {}) {
     return new Promise((resolve, reject) => {
         let result, tries = 0;
-
-        if (Array.isArray(selector) && multiple == false) {
-            multiple = true;
-        }
         
+        function* applyFilterTransform(result) {
+            if (filter != undefined) {
+                for (let elem of result) {
+                    if (filter(elem)) {
+                        if (transform) elem = transform(elem);
+                        yield elem;
+                    }
+                }
+            }
+            else if (transform != undefined) {
+                for (const elem of result) {
+                    yield transform(elem);
+                }
+            }
+        }
+
         function tryQueryElement(observer) {
             abortSignal?.throwIfAborted();
 
@@ -92,52 +105,56 @@ function waitForElementOptions(
                 else {
                     result = Array.from(parent.querySelectorAll(selector));
                 }
-                if (filter != undefined) {
-                    let filteredResult = [];
-                    for (let elem of result) {
-                        if (filter(elem)) {
-                            if (transform) elem = transform(elem);
-                            filteredResult.push(elem);
-                        }
-                    }
-                    result = filteredResult;
-                }
-                else if (transform != undefined) {
-                    let transformedResult = [];
-                    for (const elem of result) {
-                        transformedResult.push(transform(elem));
-                    }
-                    result = transformedResult;
-                }
+                result = Array.from(applyFilterTransform(result));
             }
             else {
                 if (id) {
                     result = document.getElementById(id);
+                }
+                else if (Array.isArray(selector)) {
+                    result = [];
+
+                    function* querySelectorIterator() {
+                        for (const sel of selector) {
+                            yield parent.querySelector(sel);
+                        }
+                    }
+
+                    result = Array.from(applyFilterTransform(querySelectorIterator()));
                 }
                 else {
                     result = parent.querySelector(selector);
                 }
                 if (transform) result = transform(result);
                 if (filter != undefined && !filter(result)) {
-                    return;
+                    return false;
                 }
             }
 
             if (multiple ? result?.length > 0 : result) {
                 observer?.disconnect();
-                return resolve(result);
+                resolve(result);
+                return result;
             }
 
             tries++;
 
             if (tries >= maxTries) {
                 observer?.disconnect();
-                reject(new WaitForElementMaximumTriesError(`maximum number of tries (${maxTries}) reached waiting for element "${selector}"`));
+                if (throwError) {
+                    reject(new WaitForElementMaximumTriesError(`maximum number of tries (${maxTries}) reached waiting for element "${selector}"`));
+                }
+                else {
+                    resolve(null);
+                }
+                return false;
             }
         }
 
         function startWaitForElement() {
-            tryQueryElement();
+            const firstResult = tryQueryElement();
+
+            if (firstResult) return;
             
             let observer = makeMutationObserver(
                 { target: parent,
@@ -151,16 +168,25 @@ function waitForElementOptions(
     
             if (enableTimeout) {
                 timeoutId = setTimeout(() => {
-                    abortSignal?.throwIfAborted();
                     observer.disconnect();
-                    reject(new WaitForElementTimeoutError(`timeout waiting for element "${selector}"`));
+                    if (throwError) {
+                        reject(new WaitForElementTimeoutError(`timeout waiting for element "${selector}"`));
+                    }
+                    else {
+                        resolve(null);
+                    }
                 }, timeout);
             }
     
             abortSignal?.addEventListener("abort", () => {
                 clearTimeout(timeoutId);
                 observer.disconnect();
-                reject(new DOMException(abortSignal.reason, "AbortError"));
+                if (throwError) {
+                    reject(new DOMException(abortSignal.reason, "AbortError"));
+                }
+                else {
+                    resolve(null);
+                }
             });
     
             tryQueryElement();
