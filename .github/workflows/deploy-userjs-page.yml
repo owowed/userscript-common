@@ -1,0 +1,23 @@
+name: UserJs Page Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: deploy-userjs-page
+    steps:
+      - name: Dispatch Workflow
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.PAT_WORKFLOW_DISPATCH }}
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: "owowed",
+              repo: "userjs.owowed.moe",
+              workflow_id: "github-pages-deploy.yml",
+              ref: "main",
+            });
