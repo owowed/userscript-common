@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  dispatch-workflow:
     runs-on: ubuntu-latest
     environment: deploy-userjs-page
     steps:
