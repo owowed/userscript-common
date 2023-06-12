@@ -1,4 +1,4 @@
-name: UserJs Page Deploy
+name: Deploy userjs.owowed.moe Github Pages
 
 on:
   push:
